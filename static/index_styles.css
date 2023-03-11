@@ -1,0 +1,52 @@
+/* Kis kepernyon */
+@media (max-width: 992px) and (orientation: portrait) {
+    h1 {
+        font-size: 5rem;
+    }
+
+    .entire-message {
+        font-size: 50px;
+    }
+
+    #message {
+        height: 85px;
+        font-size: 50px;
+    }
+
+    #send {
+        font-size: 55px;
+    }
+}
+
+/* Nagy kepernyon */
+@media (min-width: 993px) {
+    .entire-message {
+        font-size: 20px;
+    }
+
+    #message {
+        height: 40px;
+        font-size: 20px;
+    }
+
+    #send {
+        font-size: 20px;
+    }
+}
+
+#chat-section {
+    display: flex;
+    flex-direction: column;
+    height: 70vh;
+    overflow-y: auto;
+    overflow-wrap: break-word;
+}
+
+.username {
+    color: dodgerblue;
+}
+
+.time {
+    color: dodgerblue;
+    text-align: right;
+}

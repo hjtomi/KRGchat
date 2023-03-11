@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% from 'bootstrap5/form.html' import render_form, render_field %}
+
+{% block title %}Set Nickname{% endblock %}
+{% block css %}
+<link rel="stylesheet" href="static/name_styles.css">
+{% endblock %}
+
+{% block content %}
+
+<div class="content container-fluid justify-content-center">
+  <h1 class="text-center my-3">Add meg a felhasználóneved!</h1>
+  <form action="{{ url_for('set_username') }}" method="POST">
+    {{ form.csrf_token() }}
+    {{ render_field(form.username) }}
+    <div class="submit-holder">
+      {{ render_field(form.submit) }}
+    </div>
+  </form>
+</div>
+
+{% endblock %}

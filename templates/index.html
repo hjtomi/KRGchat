@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% from 'bootstrap5/form.html' import render_form %}
+
+{% block title %}Web Chat{% endblock %}
+{% block css %}
+<link rel="stylesheet" href="static/index_styles.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js" integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA==" crossorigin="anonymous"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+  <div class="text-center my-3">
+    <h1>Heading lmao</h1>
+  </div>
+  <div class="row">
+    <div class="col-sm-0 col-lg-2">
+    </div>
+    <div class="col-sm-12 col-lg-8 pb-2 border border-dark">
+      <div id="chat-section">
+        {% for message in messages %}
+          <p class="entire-message"><span class="username">{{message.sender}}</span> - <span class="message">{{message.message}}</span> - <span class="time">{{ message.time | format_date }}</span></p>
+        {% endfor %}
+      </div>
+      <input autofocus class="form-control my-lg-2 my-4" id="message" name="message" required type="text" value>
+      <button class="btn btn-primary btn-md" id="send" name="send" onclick="sendMessage()">Küldés</button>
+    </div>
+    <div class="col-sm-0 col-lg-2">
+    </div>
+  </div>
+</div>
+<script type="text/javascript" charset="UTF-8">
+  let socket = io();
+
+  socket.on('connect', (data) => {
+    let chatSection = document.getElementById('chat-section')
+    chatSection.scrollTop = chatSection.scrollHeight;
+  });
+
+  socket.on('message', (msg) => {
+    if (msg['data'] == "new message") {
+      let newMessage = '<p class="entire-message"><span class="username">'+msg["username"]+'</span> - <span class="message">'+msg["message"]+'</span> - <span class="time">'+msg["time"]+'</span></p>';
+      let chatSection = document.getElementById('chat-section');
+      chatSection.innerHTML += newMessage;
+      chatSection.scrollTop = chatSection.scrollHeight;
+    }
+  });
+
+  function sendMessage() {
+    const messageField = document.getElementById('message')
+    if (messageField.value == "") return;
+
+    socket.emit('message', {
+      message: messageField.value,
+      username: '{{ username }}'
+     });
+
+    messageField.value = "";
+  }
+
+  document.addEventListener('keypress', (event) => {
+    let name = event.key;
+    if (name == "Enter") {
+      sendMessage()
+    }
+  }, false);
+</script>
+{% endblock %}
