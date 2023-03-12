@@ -12,7 +12,7 @@ app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///messages.db"
 app.config["SECRET_KEY"] = "h7f5t8ekh7gw5e3vin985rg723h3oi89ped"
 bootstrap = Bootstrap5(app)
-socketio = SocketIO(app)
+socket = SocketIO(app)
 db.init_app(app)
 
 
@@ -70,7 +70,7 @@ def format_date_filter(str_date):
     return datetime_object.strftime("%m-%d %H:%M")
 
 
-@socketio.on('message')
+@socket.on('message')
 def hangle_msg(msg):
     time = datetime.datetime.now().replace(microsecond=0)
     new_message = Message(
@@ -91,4 +91,4 @@ def hangle_msg(msg):
 app.jinja_env.filters['format_date'] = format_date_filter
 
 if __name__ == "__main__":
-    socketio.run(app)
+    socket.run(app)
