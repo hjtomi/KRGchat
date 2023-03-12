@@ -4,7 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired
-from flask_socketio import SocketIO, send, emit
+from flask_socketio import SocketIO, emit
 import datetime
 
 db = SQLAlchemy()

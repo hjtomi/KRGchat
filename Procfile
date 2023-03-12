@@ -1,0 +1,1 @@
+web: gunicorn krg_chat:app
