@@ -1,1 +1,1 @@
-web: gunicorn krg_chat:app
+web: gunicorn krg_chat:socketio
