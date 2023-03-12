@@ -1,1 +1,1 @@
-gunicorn --worker-class eventlet -w 1 krg_chat:app
+gunicorn --worker-class eventlet -w 1 wsgi:app
