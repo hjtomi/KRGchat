@@ -7,8 +7,6 @@ from wtforms.validators import DataRequired
 from flask_socketio import SocketIO, send, emit
 import datetime
 
-# TODO: Scroll down automatically when a new message is sent and when entering the webpage
-
 db = SQLAlchemy()
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///messages.db"
@@ -93,4 +91,4 @@ def hangle_msg(msg):
 app.jinja_env.filters['format_date'] = format_date_filter
 
 if __name__ == "__main__":
-    socketio.run(app, allow_unsafe_werkzeug=True, host='0.0.0.0')
+    socketio.run(app)
