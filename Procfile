@@ -1,1 +1,1 @@
-web: gunicorn krg_chat:app --worker-class eventlet -w 1
+web: gunicorn krgchat:app --worker-class eventlet -w 1
