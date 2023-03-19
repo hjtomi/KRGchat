@@ -1,5 +1,3 @@
-import flask_socketio
-import gunicorn
 from flask import Flask, render_template, url_for, request, redirect
 from flask_bootstrap import Bootstrap5
 from flask_sqlalchemy import SQLAlchemy
