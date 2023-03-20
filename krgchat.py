@@ -6,11 +6,14 @@ from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired
 from flask_socketio import SocketIO, emit
 import datetime
+import os
 
 db = SQLAlchemy()
 app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///messages.db"
-app.config["SECRET_KEY"] = "h7f5t8ekh7gw5e3vin985rg723h3oi89ped"
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get('DATABASE_URL')
+app.config["SECRET_KEY"] = os.environ.get('SECRET')
+# app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///messages.db'
+# app.config["SECRET_KEY"] = 'uasyvdfuyg4378t4nve8wuohrnfvy23vjdhs'
 bootstrap = Bootstrap5(app)
 socket = SocketIO(app)
 db.init_app(app)
