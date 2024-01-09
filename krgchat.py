@@ -7,13 +7,16 @@ from wtforms.validators import DataRequired
 from flask_socketio import SocketIO, emit
 import datetime
 import os
+from dotenv import load_dotenv
 
+
+load_dotenv()
 db = SQLAlchemy()
 app = Flask(__name__)
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get('DATABASE_URL')
-app.config["SECRET_KEY"] = os.environ.get('SECRET')
-app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///messages.db'
-app.config["SECRET_KEY"] = 'uasyvdfuyg4378t4nve8wuohrnfvy23vjdhs'
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get('KRGCHAT_DATABASE_URL')
+app.config["SECRET_KEY"] = os.environ.get('KRGCHAT_SECRET_KEY')
+# app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///messages.db'
+# app.config["SECRET_KEY"] = 'uasyvdfuyg4378t4nve8wuohrnfvy23vjdhs'
 bootstrap = Bootstrap5(app)
 socket = SocketIO(app)
 db.init_app(app)
