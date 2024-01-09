@@ -12,8 +12,8 @@ db = SQLAlchemy()
 app = Flask(__name__)
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get('DATABASE_URL')
 app.config["SECRET_KEY"] = os.environ.get('SECRET')
-# app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///messages.db'
-# app.config["SECRET_KEY"] = 'uasyvdfuyg4378t4nve8wuohrnfvy23vjdhs'
+app.config["SQLALCHEMY_DATABASE_URI"] = 'sqlite:///messages.db'
+app.config["SECRET_KEY"] = 'uasyvdfuyg4378t4nve8wuohrnfvy23vjdhs'
 bootstrap = Bootstrap5(app)
 socket = SocketIO(app)
 db.init_app(app)
@@ -94,4 +94,4 @@ def hangle_msg(msg):
 app.jinja_env.filters['format_date'] = format_date_filter
 
 if __name__ == "__main__":
-    socket.run(app)
+    socket.run(app, host='0.0.0.0', port=8080)
