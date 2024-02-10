@@ -10,13 +10,19 @@
 
 <div class="content container-fluid justify-content-center">
   <h1 class="text-center my-3">Add meg a felhasználóneved!</h1>
-  <form action="{{ url_for('set_username') }}" method="POST">
+  <form action="{{ url_for('set_username') }}" id="username-field" method="POST">
     {{ form.csrf_token() }}
     {{ render_field(form.username) }}
     <div class="submit-holder">
       {{ render_field(form.submit) }}
     </div>
   </form>
+  <p id="letterCount"></p>
 </div>
+<script>
+  const MAX_USERNAME_LENGTH = 10
+  const letterCount = document.getElementById('letterCount');
+  const usernameField = document.getElementById('username-field');
+</script>
 
 {% endblock %}

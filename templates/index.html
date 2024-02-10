@@ -21,9 +21,11 @@
           <p class="entire-message"><span class="username">{{message.sender}}</span> - <span class="message">{{message.message}}</span> - <span class="time">{{ message.time | format_date }}</span></p>
         {% endfor %}
       </div>
-      <input autofocus class="form-control my-lg-2 my-4" id="message" name="message" required type="text" value>
+      <input autofocus class="form-control my-lg-2 my-4" id="message" name="message" required type="text" placeholder="Aa" value>
       <button class="btn btn-primary btn-md" id="send" name="send" onclick="sendMessage()">Küldés</button>
-      <button class="btn btn-secondary btn-md" onclick="location.href='set-username'">Felhasználónév változtatása</button>
+      <button class="btn btn-secondary btn-md" id="set-username" onclick="location.href='set-username'">Felhasználónév változtatása</button>
+      <span id="letterCount">0/150</span>
+      <span id="cooldownTimer"></span>
     </div>
     <div class="col-sm-0 col-lg-2">
     </div>
@@ -31,6 +33,8 @@
 </div>
 <script type="text/javascript" charset="UTF-8">
   let socket = io();
+  const MESSAGE_COOLDOWN = 4
+  const MAX_MESSAGE_LENGTH = 150
 
   socket.on('connect', (data) => {
     let chatSection = document.getElementById('chat-section')
@@ -47,15 +51,59 @@
   });
 
   function sendMessage() {
-    const messageField = document.getElementById('message')
+    const messageField = document.getElementById('message');
+    const letterCount = document.getElementById('letterCount');
+
+    // VALIDATION
     if (messageField.value == "") return;
 
+    if (messageField.value.length > MAX_MESSAGE_LENGTH) return;
+
+    const COOLDOWN_PERIOD = MESSAGE_COOLDOWN * 1000; // 5 seconds
+    const lastMessageTime = localStorage.getItem('lastMessageTime');
+    const currentTime = new Date().getTime();
+    if (lastMessageTime && currentTime - lastMessageTime < COOLDOWN_PERIOD) {
+      return;
+    }
+
+    // Store the current time as the last message time
+    localStorage.setItem('lastMessageTime', currentTime);
+
+    // Send to flask
     socket.emit('message', {
       message: messageField.value,
       username: '{{ username }}'
      });
 
     messageField.value = "";
+    letterCount.textContent = `0/${MAX_MESSAGE_LENGTH}`;
+    startCooldown(COOLDOWN_PERIOD);
+  }
+
+  function startCooldown(duration) {
+    const cooldownTimer = document.getElementById('cooldownTimer');
+    let remainingTime = duration;
+
+    // Immediately update the cooldown display to avoid delay in interval
+    updateCooldownDisplay(remainingTime);
+
+    const intervalId = setInterval(() => {
+        remainingTime -= 1000;
+        updateCooldownDisplay(remainingTime);
+
+        if (remainingTime <= 0) {
+            clearInterval(intervalId);
+            cooldownTimer.textContent = ''; // Clear the cooldown display
+        }
+    }, 1000);
+  }
+
+  function updateCooldownDisplay(remainingTime) {
+      const seconds = Math.ceil(remainingTime / 1000);
+      const cooldownTimer = document.getElementById('cooldownTimer');
+      if (seconds > 0) {
+          cooldownTimer.textContent = `${seconds}`;
+      }
   }
 
   document.addEventListener('keypress', (event) => {
@@ -64,5 +112,10 @@
       sendMessage()
     }
   }, false);
+
+  document.getElementById('message').addEventListener('input', function() {
+    var length = this.value.length; // Get the length of the current input
+    document.getElementById('letterCount').textContent = `${length}/${MAX_MESSAGE_LENGTH}`; // Update the span with this value
+  });
 </script>
 {% endblock %}

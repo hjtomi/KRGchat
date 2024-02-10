@@ -16,6 +16,17 @@
     #send {
         font-size: 55px;
     }
+
+    #set-username {
+        font-size: 40px;
+    }
+
+    #cooldownTimer {
+        font-size: 55px;
+        float: right;
+        margin-right: 10px;
+        margin-top: 8px;
+    }
 }
 
 /* Nagy kepernyon */
@@ -31,6 +42,17 @@
 
     #send {
         font-size: 20px;
+    }
+
+    #set-username {
+        font-size: 16px;
+    }
+
+    #cooldownTimer {
+        font-size: 20px;
+        float: right;
+        margin-right: 20px;
+        margin-top: 8px;
     }
 }
 

@@ -100,4 +100,4 @@ def hangle_msg(msg):
 app.jinja_env.filters['format_date'] = format_date_filter
 
 if __name__ == "__main__":
-    socket.run(app)
+    socket.run(app, host='192.168.1.82', port=8080)
