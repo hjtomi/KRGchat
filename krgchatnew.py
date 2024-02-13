@@ -1,9 +1,9 @@
-from flask import Flask, render_template, url_for, request, redirect, make_response
+from flask import Flask, render_template, url_for, request, redirect, make_response, flash
 from flask_bootstrap import Bootstrap5
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
-from wtforms.validators import DataRequired
+from wtforms.validators import InputRequired, Length
 from flask_socketio import SocketIO, emit
 import datetime
 import os
@@ -19,13 +19,8 @@ socket = SocketIO(app)
 db.init_app(app)
 
 
-class FormMessage(FlaskForm):
-    message = StringField("", validators=[DataRequired()], render_kw={'autofocus': True})
-    send = SubmitField("Küldés")
-
-
 class FormUsername(FlaskForm):
-    username = StringField("", validators=[DataRequired()], render_kw={'autofocus': True})
+    username = StringField("", validators=[InputRequired(), Length(max=20)], render_kw={'autofocus': True})
     submit = SubmitField("Tovább")
 
 
@@ -44,15 +39,17 @@ with app.app_context():
 def home():
     username = request.cookies.get('username', '')
     if not username:
-        return render_template('name.html', form=FormUsername())
+        return redirect(url_for('set_username'))
     messages = db.session.query(Message).all()
-    return render_template('index.html', messages=messages, form=FormMessage(), username=username)
+    return render_template('index.html', messages=messages, username=username)
 
 
 @app.route("/set-username", methods=["GET", "POST"])
 def set_username():
     if request.method == "POST":
         username = request.form["username"]
+        if len(username) > 20:
+            return render_template('name.html', form=FormUsername())
         response = make_response(redirect(url_for('home')))
         response.set_cookie('username', username, max_age=31536000)
         return response
@@ -100,4 +97,4 @@ def hangle_msg(msg):
 app.jinja_env.filters['format_date'] = format_date_filter
 
 if __name__ == "__main__":
-    socket.run(app, host='192.168.1.82', port=8080)
+    socket.run(app, debug=True)
