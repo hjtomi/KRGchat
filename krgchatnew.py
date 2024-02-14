@@ -56,18 +56,18 @@ def set_username():
 
     return render_template('name.html', form=FormUsername())
 
-
-@app.route("/send_message/<username>", methods=["GET", "POST"])
-def send_message(username):
-    new_record = Message(
-        message=request.form["message"],
-        time=datetime.datetime.now().replace(microsecond=0),
-        sender=username
-    )
-    db.session.add(new_record)
-    db.session.commit()
-    emit('message', {'data': 'new message sent!'})
-    return redirect(url_for('home', username=username))
+# Junk, not used (didnt delete because i am not 100% sure)
+# @app.route("/send_message/<username>", methods=["GET", "POST"])
+# def send_message(username):
+#     new_record = Message(
+#         message=request.form["message"],
+#         time=datetime.datetime.now().replace(microsecond=0),
+#         sender=username
+#     )
+#     db.session.add(new_record)
+#     db.session.commit()
+#     emit('message', {'data': 'new message sent!'})
+#     return redirect(url_for('home', username=username))
 
 
 @app.template_filter('format_date')
@@ -97,4 +97,4 @@ def hangle_msg(msg):
 app.jinja_env.filters['format_date'] = format_date_filter
 
 if __name__ == "__main__":
-    socket.run(app, debug=True)
+    socket.run(app, debug=True, host='192.168.1.82', port=8080)

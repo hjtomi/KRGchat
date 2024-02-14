@@ -42,9 +42,23 @@
 
   socket.on('message', (msg) => {
     if (msg['data'] == "new message") {
-      let newMessage = '<p class="entire-message"><span class="username">'+msg["username"]+'</span> - <span class="message">'+msg["message"]+'</span> - <span class="time">'+msg["time"]+'</span></p>';
+      // Create a new element for the message
+      let newMessage = document.createElement('p');
+      newMessage.className = 'entire-message new-message-animation';
+      newMessage.innerHTML = '<span class="username">' + msg["username"] + '</span> - <span class="message">' + msg["message"] + '</span> - <span class="time">' + msg["time"] + '</span>';
+    
+      // Select the chat section
       let chatSection = document.getElementById('chat-section');
-      chatSection.innerHTML += newMessage;
+    
+      // Append the new message element to the chat section
+      chatSection.appendChild(newMessage);
+    
+      // Add an event listener to remove the animation class once the animation ends
+      newMessage.addEventListener('animationend', () => {
+        newMessage.classList.remove('new-message-animation');
+      });
+
+      // Scroll to the bottom of the chat
       chatSection.scrollTop = chatSection.scrollHeight;
     }
   });

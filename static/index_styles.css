@@ -27,6 +27,11 @@
         margin-right: 10px;
         margin-top: 8px;
     }
+
+    #letterCount {
+        font-size: 40px;
+        vertical-align: middle;
+    }
 }
 
 /* Nagy kepernyon */
@@ -54,9 +59,15 @@
         margin-right: 20px;
         margin-top: 8px;
     }
+
+    #letterCount {
+        font-size: 20px;
+        vertical-align: middle;
+    }
 }
 
 #chat-section {
+    position: relative;
     display: flex;
     flex-direction: column;
     height: 70vh;
@@ -71,4 +82,19 @@
 .time {
     color: dodgerblue;
     text-align: right;
+}
+
+@keyframes flyIn {
+    from {
+      opacity: 0;
+      transform: translateY(100%);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+}
+
+.new-message-animation {
+    animation: flyIn 0.5s ease-out forwards;
 }
