@@ -49,6 +49,7 @@
     
       // Select the chat section
       let chatSection = document.getElementById('chat-section');
+      let isScrolledToBottom = chatSection.scrollHeight - chatSection.clientHeight <= chatSection.scrollTop + 1
     
       // Append the new message element to the chat section
       chatSection.appendChild(newMessage);
@@ -58,8 +59,11 @@
         newMessage.classList.remove('new-message-animation');
       });
 
-      // Scroll to the bottom of the chat
-      chatSection.scrollTop = chatSection.scrollHeight;
+      // Scroll to the bottom only if it has been scrolled to the bottom before the new message
+      if(isScrolledToBottom) {
+        // Scroll to the bottom of the chat
+        chatSection.scrollTop = chatSection.scrollHeight;
+      }
     }
   });
 
