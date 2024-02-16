@@ -1,4 +1,3 @@
-import errno
 from flask import Flask, flash, render_template, session, url_for, request, redirect, make_response
 from flask_bootstrap import Bootstrap5
 from flask_sqlalchemy import SQLAlchemy
@@ -10,6 +9,8 @@ import datetime
 import os
 from dotenv import load_dotenv
 from colorama import Fore, Style
+from hashlib import sha256
+from functools import wraps
 
 load_dotenv()
 db = SQLAlchemy()
@@ -21,11 +22,18 @@ socket = SocketIO(app)
 db.init_app(app)
 
 online_members = {}
+PASSWORD_HASHED = sha256(os.environ.get('PASSWORD', '').encode('UTF-8')).hexdigest()
+LOCKOUT_SECONDS = 30
 
 
 class FormUsername(FlaskForm):
     username = StringField("", validators=[InputRequired(), Length(max=20)], render_kw={'autofocus': True})
     submit = SubmitField("Tovább")
+
+
+class FormPassword(FlaskForm):
+    password = StringField('', render_kw={'autofocus': True})
+    submit = SubmitField('Belépés')
 
 
 class Message(db.Model):
@@ -39,9 +47,33 @@ with app.app_context():
     db.create_all()
 
 
+def check_lockout(func):
+    @wraps(func)
+    def decorated_function(*args, **kwargs):
+        lockout_until = session.get('lockout_until')
+        if lockout_until:
+            # Ensure lockout_until is timezone-naive for comparison
+            if lockout_until.tzinfo is not None and lockout_until.tzinfo.utcoffset(lockout_until) is not None:
+                # Convert to timezone-naive UTC datetime if it's timezone-aware
+                lockout_until = lockout_until.replace(tzinfo=None)
+                
+            current_time = datetime.datetime.now()
+            if lockout_until > current_time:
+                # Calculate remaining lockout time
+                remaining_seconds = int((lockout_until - current_time).total_seconds())
+                flash(f'Please wait {remaining_seconds} more seconds before trying again.')
+                return redirect(url_for('waiting_room'))
+        return func(*args, **kwargs)
+    return decorated_function
+
+
 @app.route("/", methods=['GET', 'POST'])
+@check_lockout
 def home():
     username = request.cookies.get('username', '')
+    password_cookie = request.cookies.get('password', '')
+    if password_cookie != PASSWORD_HASHED:
+        return redirect(url_for('password'))
     if not username:
         return redirect(url_for('set_username'))
     if username in online_members.values():
@@ -51,6 +83,7 @@ def home():
 
 
 @app.route("/set-username", methods=["GET", "POST"])
+@check_lockout
 def set_username():
     if request.method == "POST":
         username = request.form["username"]
@@ -63,6 +96,26 @@ def set_username():
         return response
 
     return render_template('name.html', form=FormUsername())
+
+@app.route("/password", methods=['GET', 'POST'])
+@check_lockout
+def password():
+    if request.method == 'POST':
+        given_pw = request.form['password']
+        if sha256(given_pw.encode('UTF-8')).hexdigest() == PASSWORD_HASHED:
+            response = make_response(redirect(url_for('home')))
+            response.set_cookie('password', sha256(given_pw.encode('UTF-8')).hexdigest(), max_age=31536000)
+            session.pop('lockout_until', None)
+            return response
+        else:
+            session['lockout_until'] = datetime.datetime.now() + datetime.timedelta(seconds=LOCKOUT_SECONDS)
+            return redirect(url_for('waiting_room'))
+    return render_template('password.html', form=FormPassword())
+
+
+@app.route('/waiting-room', methods=['GET'])
+def waiting_room():
+    return '''<p>DOOR STUCK</p>'''
 
 
 @app.template_filter('format_date')
