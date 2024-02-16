@@ -1,4 +1,5 @@
-from flask import Flask, render_template, session, url_for, request, redirect, make_response
+import errno
+from flask import Flask, flash, render_template, session, url_for, request, redirect, make_response
 from flask_bootstrap import Bootstrap5
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import FlaskForm
@@ -54,7 +55,9 @@ def set_username():
     if request.method == "POST":
         username = request.form["username"]
         if len(username) > 20:
-            return render_template('name.html', form=FormUsername())
+            return render_template('name.html', form=FormUsername(), error='A felhasználónév 20 karakternél nem lehet hosszabb.')
+        if username in online_members.values():
+            return render_template('name.html', form=FormUsername(), error='Valaki más is ezt a felhasználónevet használja.')
         response = make_response(redirect(url_for('home')))
         response.set_cookie('username', username, max_age=31536000)
         return response

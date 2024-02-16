@@ -18,7 +18,9 @@
       {{ render_field(form.submit) }}
     </div>
   </form>
-  <p id="letterCount"></p>
+  {% if error %}
+    <p id="error-message">{{ error }}</p>
+  {% endif %}
 </div>
 
 {% endblock %}
