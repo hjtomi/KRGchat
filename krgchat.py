@@ -23,7 +23,9 @@ db.init_app(app)
 
 online_members = {}
 PASSWORD_HASHED = sha256(os.environ.get('PASSWORD', '').encode('UTF-8')).hexdigest()
-LOCKOUT_SECONDS = 30
+WAITING_TIME = 30
+USERNAME_COOKIE_EXPIRE_SECONDS = 31536000  # 1 year
+PASSWORD_COOKIE_EXPIRE_SECONDS = 1209600  # 2 weeks
 
 
 class FormUsername(FlaskForm):
@@ -61,7 +63,6 @@ def check_lockout(func):
             if lockout_until > current_time:
                 # Calculate remaining lockout time
                 remaining_seconds = int((lockout_until - current_time).total_seconds())
-                flash(f'Please wait {remaining_seconds} more seconds before trying again.')
                 return redirect(url_for('waiting_room'))
         return func(*args, **kwargs)
     return decorated_function
@@ -92,10 +93,11 @@ def set_username():
         if username in online_members.values():
             return render_template('name.html', form=FormUsername(), error='Valaki más is ezt a felhasználónevet használja.')
         response = make_response(redirect(url_for('home')))
-        response.set_cookie('username', username, max_age=31536000)
+        response.set_cookie('username', username, max_age=USERNAME_COOKIE_EXPIRE_SECONDS)
         return response
 
     return render_template('name.html', form=FormUsername())
+
 
 @app.route("/password", methods=['GET', 'POST'])
 @check_lockout
@@ -104,18 +106,18 @@ def password():
         given_pw = request.form['password']
         if sha256(given_pw.encode('UTF-8')).hexdigest() == PASSWORD_HASHED:
             response = make_response(redirect(url_for('home')))
-            response.set_cookie('password', sha256(given_pw.encode('UTF-8')).hexdigest(), max_age=31536000)
+            response.set_cookie('password', sha256(given_pw.encode('UTF-8')).hexdigest(), max_age=PASSWORD_COOKIE_EXPIRE_SECONDS)
             session.pop('lockout_until', None)
             return response
         else:
-            session['lockout_until'] = datetime.datetime.now() + datetime.timedelta(seconds=LOCKOUT_SECONDS)
+            session['lockout_until'] = datetime.datetime.now() + datetime.timedelta(seconds=WAITING_TIME)
             return redirect(url_for('waiting_room'))
     return render_template('password.html', form=FormPassword())
 
 
 @app.route('/waiting-room', methods=['GET'])
 def waiting_room():
-    return '''<p>DOOR STUCK</p>'''
+    return render_template('waiting-room.html', waiting_time=WAITING_TIME)
 
 
 @app.template_filter('format_date')

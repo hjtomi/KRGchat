@@ -1,0 +1,13 @@
+/* Kis kepernyon */
+@media (max-width: 992px) and (orientation: portrait) {
+    #vissza {
+        font-size: 40px;
+    }
+}
+
+/* Nagy kepernyon */
+@media (min-width: 992px) {
+    #vissza {
+        font-size: 30px;
+    }
+}
