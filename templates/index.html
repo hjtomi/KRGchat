@@ -35,8 +35,25 @@
   const MESSAGE_COOLDOWN = 4
   const MAX_MESSAGE_LENGTH = 150
 
+  function getCookie(name) {
+    // Add the equals sign to the cookie name
+    let nameEQ = name + "=";
+    // Split document.cookie at semicolons
+    let ca = document.cookie.split(';');
+    // Loop through the cookie array
+    for(let i=0;i < ca.length;i++) {
+      let c = ca[i];
+      // Remove leading whitespaces
+      while (c.charAt(0)==' ') c = c.substring(1,c.length);
+      // Check if this cookie's name matches the requested name
+      if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length,c.length);
+    }
+    // If not found, return null
+    return null;
+  }
+
   socket.on('connect', (data) => {
-    let chatSection = document.getElementById('chat-section')
+    let chatSection = document.getElementById('chat-section');
     chatSection.scrollTop = chatSection.scrollHeight;
   });
 
