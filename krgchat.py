@@ -11,6 +11,7 @@ from dotenv import load_dotenv
 from colorama import Fore, Style
 from hashlib import sha256
 from functools import wraps
+import atexit
 
 load_dotenv()
 db = SQLAlchemy()
