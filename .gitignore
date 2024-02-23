@@ -2,3 +2,6 @@ venv/
 .idea/
 .env
 test.py
+krgchat.spec
+build/
+dist/
