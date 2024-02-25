@@ -12,6 +12,7 @@ from colorama import Fore, Style
 from hashlib import sha256
 from functools import wraps
 import argparse
+from waitress import serve
 
 parser = argparse.ArgumentParser(description='')
 parser.add_argument('-ip', '--ip', type=str, help='IP cím amin a szerver fut, alap érték: 0.0.0.0', default='0.0.0.0')
@@ -26,6 +27,8 @@ if not args.ip:
 if not args.port:
     print('Adj meg portot')
     exit()
+
+print(f'Running on {args.ip}:{args.port}')
 
 load_dotenv()
 db = SQLAlchemy()
@@ -184,4 +187,4 @@ def disconnect():
 app.jinja_env.filters['format_date'] = format_date_filter
 
 if __name__ == "__main__":
-    socket.run(app, debug=True, host=args.ip, port=args.port)
+    serve(app, host=args.ip, port=args.port)
