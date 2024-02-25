@@ -12,7 +12,7 @@
   <h1 class="text-center my-3">Helytelen jelszó</h1>
   <h3 class="text-center my-3" id="feedback">{{ waiting_time }} másodperc múlva újra próbálhatod</h3>
   <div class="text-center">
-    <button onclick="location.href='password'" class="btn btn-primary" id="vissza">Újra próbálás</button>
+    <button onclick="tryAgain()" class="btn btn-primary" id="vissza">Újra próbálás</button>
   </div>
   {% if error %}
     <p id="error-message">{{ error }}</p>
@@ -20,6 +20,12 @@
 </div>
 <script>
   let counting_waiting_time = '{{ waiting_time }}';
+
+  function tryAgain() {
+    if (counting_waiting_time < 1) {
+      window.location.href = '/password';
+    }
+  }
 
   const intervalId = setInterval(() => {
     counting_waiting_time -= 1;

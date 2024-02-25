@@ -70,6 +70,7 @@
     position: relative;
     display: flex;
     flex-direction: column;
+    justify-content: end;
     height: 70vh;
     overflow-y: auto;
     overflow-wrap: break-word;
