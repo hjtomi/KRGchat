@@ -17,6 +17,7 @@ from waitress import serve
 parser = argparse.ArgumentParser(description='')
 parser.add_argument('-ip', '--ip', type=str, help='IP cím amin a szerver fut, alap érték: 0.0.0.0', default='0.0.0.0')
 parser.add_argument('-p', '--port', type=int, help='PORT a szerverhez, alap érték: 8080', default=8080)
+parser.add_argument('-d', '--debug', action='store_true', help='Run the server in debug mode')
 args = parser.parse_args()
 if not args.ip and not args.port:
     print('Adj meg ip-t és portot')
@@ -187,4 +188,7 @@ def disconnect():
 app.jinja_env.filters['format_date'] = format_date_filter
 
 if __name__ == "__main__":
-    serve(app, host=args.ip, port=args.port)
+    if args.debug:
+        socket.run(app, debug=True, host=args.ip, port=args.port)
+    else:
+        serve(app, host=args.ip, port=args.port)
