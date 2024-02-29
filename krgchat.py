@@ -12,6 +12,9 @@ from colorama import Fore, Style
 from hashlib import sha256
 from functools import wraps
 import argparse
+import logging
+
+# minden socket.on('connect') uzenetet kuld a backendnek
 
 parser = argparse.ArgumentParser(description='')
 parser.add_argument('-ip', '--ip', type=str, help='IP cím amin a szerver fut, alap érték: 0.0.0.0', default='0.0.0.0')
