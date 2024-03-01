@@ -150,5 +150,9 @@
     var length = this.value.length; // Get the length of the current input
     document.getElementById('letterCount').textContent = `${length}/${MAX_MESSAGE_LENGTH}`; // Update the span with this value
   });
+
+  document.getElementById('chat-section').addEventListener('scroll', (data) => {
+    console.log(data, 'szkroll')
+  });
 </script>
 {% endblock %}

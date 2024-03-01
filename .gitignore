@@ -2,6 +2,7 @@ venv/
 .idea/
 .env
 test.py
+templates/test.html
 krgchat.spec
 build/
 dist/
