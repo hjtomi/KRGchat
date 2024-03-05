@@ -1,4 +1,4 @@
-from flask import Flask, render_template, session, url_for, request, redirect, make_response
+from flask import Flask, jsonify, render_template, session, url_for, request, redirect, make_response
 from flask_bootstrap import Bootstrap5
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import FlaskForm
@@ -40,11 +40,12 @@ bootstrap = Bootstrap5(app)
 socket = SocketIO(app)
 db.init_app(app)
 
-online_members = {}
 PASSWORD_HASHED = sha256(os.environ.get('PASSWORD', '').encode('UTF-8')).hexdigest()
 WAITING_TIME = 30
 USERNAME_COOKIE_EXPIRE_SECONDS = 31536000  # 1 year
 PASSWORD_COOKIE_EXPIRE_SECONDS = 1209600  # 2 weeks
+AMOUNT_OF_MESSAGE_TO_LOAD = 50
+online_members = {}
 
 
 class FormUsername(FlaskForm):
@@ -63,9 +64,19 @@ class Message(db.Model):
     time = db.Column(db.String, nullable=False)
     sender = db.Column(db.String, nullable=False)
 
+    def serialize(self):
+        return {
+            'message': self.message,
+            'time': format_date_filter(self.time),
+            'sender': self.sender,
+        }
+    
 
 with app.app_context():
     db.create_all()
+    # List of messages. Newest first
+    am_messages = db.session.query(Message).count()
+    print('Amount of messages in the database: ', am_messages)
 
 
 def check_lockout(func):
@@ -97,7 +108,22 @@ def home():
     if not username or len(username) > 20 or username in online_members.values():
         return redirect(url_for('set_username'))
     messages = db.session.query(Message).all()
-    return render_template('index.html', messages=messages, username=username)
+    return render_template('index.html', messages=messages[AMOUNT_OF_MESSAGE_TO_LOAD * -1:], username=username)
+
+
+@app.route('/load-messages', methods=['GET'])
+def load_messages():
+    am_loaded_messages = int(request.args.get('am_loaded_messages'))
+    if am_loaded_messages == am_messages:
+        return jsonify({'message': 'no more'})
+    
+    if am_loaded_messages + AMOUNT_OF_MESSAGE_TO_LOAD > am_messages:
+        to_load = list(db.session.query(Message).slice(0, am_messages - am_loaded_messages).all())
+    else:
+        to_load = list(db.session.query(Message).slice(am_messages - (am_loaded_messages + AMOUNT_OF_MESSAGE_TO_LOAD), am_messages - am_loaded_messages).all())
+
+    to_load = list(reversed([message.serialize() for message in to_load]))
+    return jsonify({'messages': to_load})
 
 
 @app.route("/set-username", methods=["GET", "POST"])
@@ -145,7 +171,6 @@ def format_date_filter(str_date):
 
 @socket.on('message')
 def hangle_msg(msg):
-    print(online_members)
     time = datetime.datetime.now().replace(microsecond=0)
     new_message = Message(
         message=msg['message'],
@@ -154,6 +179,8 @@ def hangle_msg(msg):
     )
     db.session.add(new_message)
     db.session.commit()
+    global am_messages
+    am_messages += 1
     emit('message', {
         'data': 'new message',
         'message': msg['message'],
@@ -169,6 +196,7 @@ def connect():
     online_members[session_id] = username
     print(f'newly joined user sid: {Fore.CYAN + session_id + Style.RESET_ALL}')
     print(f'newly joined user: {username}')
+    print('Online members: ', online_members)
 
 
 @socket.on('disconnect')
@@ -181,6 +209,7 @@ def disconnect():
         print('keyerror in deleting user from online members')
     print(f'user disconnected: {Fore.CYAN + session_id + Style.RESET_ALL}')
     print(f'left user: {username}')
+    print('Online members: ', online_members)
 
 
 app.jinja_env.filters['format_date'] = format_date_filter
